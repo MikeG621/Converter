@@ -100,6 +100,9 @@
     <Compile Include="Converter.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Converter.Designer.cs">
+      <DependentUpon>Converter.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Converter.resx">
       <DependentUpon>Converter.cs</DependentUpon>
     </EmbeddedResource>

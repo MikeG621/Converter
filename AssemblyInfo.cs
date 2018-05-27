@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 //
 // General Information about an assembly is controlled through the following 
@@ -11,9 +10,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Imperial Department of Military Research")]
 [assembly: AssemblyProduct("IDMR Mission Converter")]
-[assembly: AssemblyCopyright("The Galactic Empire: Empire Reborn 2005")]
+[assembly: AssemblyCopyright("Copyright © Michael Gaisser 2005-2018")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]	
+[assembly: AssemblyCulture("")]
 
 //
 // Version information for an assembly consists of the following four values:
@@ -26,7 +25,7 @@ using System.Runtime.CompilerServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("1.4.1.0")]
+[assembly: AssemblyVersion("1.5.*")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
