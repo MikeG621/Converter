@@ -26,6 +26,10 @@
 * [NEW] XWA Order Speed [JB]
 * [FIX] XWA order wait times adjusted due to different multipliers [JB]
 * [UPD] added backdrops now randomized
+* [UPD] XWA GlobalGoals now do all teams [JB]
+* [FIX] offset error in XWA GG Prim T1
+* [NEW] 2nd briefing converted to XWA [JB]
+* [UPD] Briefings 3-8 properly skipped when converting MP missions [JB]
 */
 
 using System;
@@ -235,7 +239,7 @@ namespace Idmr.Converter
 			XvT.Position = 2;
 			TIE.Position = 2;
 			short i, j;
-			for (i = 0; i < 4; i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));			//# of FGs and messages
+			bw.Write(br.ReadInt32());			//# of FGs and messages
 			TIE.Position = 2;
 			short FGs = br.ReadInt16();			//store them
 			short Messages = br.ReadInt16();
@@ -251,14 +255,14 @@ namespace Idmr.Converter
 			{
 				long TIEPos = TIE.Position;
 				XvTPos = XvT.Position;
-				for (j = 0; j < 12; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //FG Name
+				bw.Write(br.ReadBytes(12));     //FG Name
 				TIE.Position = TIEPos + 24;
 				XvT.Position = XvTPos + 40;
-				for (j = 0; j < 12; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Cargo
+				bw.Write(br.ReadBytes(12));     //Cargo
 				XvT.Position = XvTPos + 60;
-				for (j = 0; j < 12; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Special Cargo
+				bw.Write(br.ReadBytes(12));     //Special Cargo
 				XvT.Position = XvTPos + 80;
-				for (j = 0; j < 8; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));      //SC ship# -> IFF
+				bw.Write(br.ReadBytes(8));      //SC ship# -> IFF
 				TIE.Position -= 1;
 				// if player is Imperial, have to switch Team/IFF values, since Imps have to be Team 1 (0) and Rebs are Team 2 (1)
 				XvT.Position = XvTPos + 88;
@@ -274,10 +278,10 @@ namespace Idmr.Converter
 						break;
 					default:
 						TIE.Position--;
-						XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));
+						XvT.WriteByte(br.ReadByte());
 						break;
 				}
-				for (j = 0; j < 9; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));      //AI -> # of waves
+				bw.Write(br.ReadBytes(9));      //AI -> # of waves
 				TIE.Position += 1;
 				XvT.Position += 2;
 				if (TIE.ReadByte() != 0)
@@ -288,26 +292,26 @@ namespace Idmr.Converter
 					XvT.WriteByte(Convert.ToByte(TIE.ReadByte() - 1));                      //Player's craft #
 				}
 				else XvT.Position += 3;
-				for (j = 0; j < 3; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));      //Orientation values
+				bw.Write(br.ReadBytes(3));      //Orientation values
 				TIE.Position = TIEPos + 73;
 				XvT.Position = XvTPos + 109;
-				for (j = 0; j < 9; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));      //Arrival trigger 1&2
+				bw.Write(br.ReadBytes(9));      //Arrival trigger 1&2
 				XvT.Position += 2;
-				XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));                              //trigger 1 AND/OR 2
+				XvT.WriteByte(br.ReadByte());                              //trigger 1 AND/OR 2
 				TIE.Position += 1;
 				XvT.Position = XvTPos + 134;
-				for (j = 0; j < 6; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));      //Arrv delay -> Dep trigger
+				bw.Write(br.ReadBytes(6));      //Arrv delay -> Dep trigger
 				TIE.Position += 2;
 				XvT.Position += 9;
-				XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));                              //Abort trigger
+				XvT.WriteByte(br.ReadByte());                              //Abort trigger
 				TIE.Position += 3;
 				XvT.Position += 4;
-				for (j = 0; j < 8; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));      //Arrv/Dep methods
-				for (j = 0; j < 18; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Order 1
+				bw.Write(br.ReadBytes(8));      //Arrv/Dep methods
+				bw.Write(br.ReadBytes(18));     //Order 1
 				XvT.Position += 64;
-				for (j = 0; j < 18; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Order 2
+				bw.Write(br.ReadBytes(18));     //Order 2
 				XvT.Position += 64;
-				for (j = 0; j < 18; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Order 3
+				bw.Write(br.ReadBytes(18));     //Order 3
 				XvT.Position = XvTPos + 502;
 				j = br.ReadByte();
 				if (j == 9)                                                                 // if EXIST
@@ -317,7 +321,7 @@ namespace Idmr.Converter
 					XvT.WriteByte(2);                                                       // be destroyed
 				}
 				else XvT.WriteByte(Convert.ToByte(j));                                      //Primary Goal
-				byte b = Convert.ToByte(TIE.ReadByte());
+				byte b = br.ReadByte();
 				if (b == 1) b++;    // 50%
 				else if (b >= 2) b += 2;    // >=1 and on
 				XvT.WriteByte(b);                                                           //Amount
@@ -334,7 +338,7 @@ namespace Idmr.Converter
 					XvT.WriteByte(2);                                                       // be destroyed
 				}
 				else XvT.WriteByte(Convert.ToByte(j));
-				b = Convert.ToByte(TIE.ReadByte());
+				b = br.ReadByte();
 				if (b == 1) b++;    // 50%
 				else if (b >= 2) b += 2;    // >=1 and on
 				XvT.WriteByte(b);
@@ -351,7 +355,7 @@ namespace Idmr.Converter
 					XvT.WriteByte(2);                                                       // be destroyed
 				}
 				else XvT.WriteByte(Convert.ToByte(j));
-				b = Convert.ToByte(TIE.ReadByte());
+				b = br.ReadByte();
 				if (b == 1) b++;    // 50%
 				else if (b >= 2) b += 2;    // >=1 and on
 				XvT.WriteByte(b);
@@ -368,11 +372,11 @@ namespace Idmr.Converter
 					XvT.WriteByte(2);                                                       // be destroyed
 				}
 				else XvT.WriteByte(Convert.ToByte(j));
-				b = Convert.ToByte(TIE.ReadByte());
+				b = br.ReadByte();
 				if (b == 1) b++;    // 50%
 				else if (b >= 2) b += 2;    // >=1 and on
 				XvT.WriteByte(b);
-				XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));      //Bonus points, will need fiddling
+				XvT.WriteByte(br.ReadByte());      //Bonus points, will need fiddling
 				if (j != 10) XvT.WriteByte(1);
 				else XvT.WriteByte(0);
 				XvT.Position += 74;
@@ -385,13 +389,13 @@ namespace Idmr.Converter
 				XvT.WriteByte(10);                                  //goal 8
 				TIE.ReadByte();
 				XvT.Position = XvTPos + 1126;
-				for (j = 0; j < 30; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //X points
+				bw.Write(br.ReadBytes(30));     //X points
 				XvT.Position += 14;
-				for (j = 0; j < 30; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Y points
+				bw.Write(br.ReadBytes(30));     //Y points
 				XvT.Position += 14;
-				for (j = 0; j < 30; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Z points
+				bw.Write(br.ReadBytes(30));     //Z points
 				XvT.Position += 14;
-				for (j = 0; j < 30; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));     //Enable points
+				bw.Write(br.ReadBytes(30));     //Enable points
 				XvT.Position += 90;                                                         //goto End
 				TIE.Position += 4;
 			}
@@ -401,39 +405,39 @@ namespace Idmr.Converter
 			{
 				XvT.WriteByte(Convert.ToByte(i));
 				XvT.Position++;
-				for (j = 0; j < 64; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte())); //Color & message
+				bw.Write(br.ReadBytes(64)); //Color & message
 				XvT.WriteByte(1);
 				XvT.Position += 9;
-				for (j = 0; j < 8; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));  //triggers 1 & 2
+				bw.Write(br.ReadBytes(8));  //triggers 1 & 2
 				XvT.Position++;
 				TIE.Position += 17;
-				XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));                          //trigger 1 AND/OR 2
+				XvT.WriteByte(br.ReadByte());                          //trigger 1 AND/OR 2
 				TIE.Position -= 2;
 				XvT.Position += 28;
-				XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));                          //Delay
+				XvT.WriteByte(br.ReadByte());                          //Delay
 				TIE.Position++;
 				XvT.Position++;
 			}
 			#endregion
-			XvT.WriteByte(3);XvT.Position++;                                            //Unknown
+			XvT.WriteByte(3);XvT.Position++;	//Unknown
 			#region Global Goals
-			for (j = 0; j < 8; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));			//Prim Goal trigger 1 & 2
+			bw.Write(br.ReadBytes(8));			//Prim Goal trigger 1 & 2
 			XvT.Position += 2;
 			TIE.Position += 17;
-			XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));								//Prim trigger 1 AND/OR 2
+			XvT.WriteByte(br.ReadByte());		//Prim trigger 1 AND/OR 2
 			XvT.Position += 73;
 			TIE.Position += 2;
-			for (j = 0; j < 8; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));			//Sec Goal trigger 1 & 2
+			bw.Write(br.ReadBytes(8));			//Sec Goal trigger 1 & 2
 			XvT.Position += 2;
 			TIE.Position += 17;
-			XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));								//Sec Goal trigger A/O
+			XvT.WriteByte(br.ReadByte());		//Sec Goal trigger A/O
 
 			//[JB] Convert TIE bonus global goals into a second set of XvT secondary goals
 			TIE.Position += 2; //Skip 2 bytes after the previous and/or byte to reach the start of the bonus goal triggers
-			for (j = 0; j < 8; j++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));			//Bonus Goal trigger 1 & 2
+			bw.Write(br.ReadBytes(8));			//Bonus Goal trigger 1 & 2
 			XvT.Position += 2;
 			TIE.Position += 17;
-			XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));								//Bonus Goal trigger A/O
+			XvT.WriteByte(br.ReadByte());		//Bonus Goal trigger A/O
 			XvT.Position += 17;
 			XvT.WriteByte(0);   //And/Or
 			XvT.Position += 2;  //Jump to the end of the Global Goal block, which happens to be the start of the second teams's global goal block
@@ -476,11 +480,11 @@ namespace Idmr.Converter
 			if (TIE.ReadByte() == 49) XvT.WriteByte(1); else XvT.Position++;			//IFF 6 stance (purple)
 			XvT.Position += 4;
 			TIE.Position = 24;
-			for (i = 0; i < 128; i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));	//Primary mission complete
+			bw.Write(br.ReadBytes(128)); //Primary mission complete
 			TIE.Position += 128;
-			for (i = 0; i < 128; i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));	//Primary failed
+			bw.Write(br.ReadBytes(128)); //Primary failed
 			TIE.Position -= 256;  //[JB] Fixed offset, was off by one.
-			for (i = 0; i < 128; i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));	//Secondary complete
+			bw.Write(br.ReadBytes(128)); //Secondary complete
 			TIE.Position = 410;
 			XvT.Position += 67;
 			XvTPos = XvT.Position;
@@ -490,19 +494,19 @@ namespace Idmr.Converter
 			XvT.Position = XvTPos + 0x1E7;
 			XvT.WriteByte(1);XvT.Position++;
 			if (TIE.ReadByte() != 49) TIE.Position--;                                   //check for hostile char
-			for (i = 0; i < 11; i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));		//IFF 3 name
+			bw.Write(br.ReadBytes(11));     //IFF 3 name
 			XvT.Position += 474;XvT.WriteByte(1);XvT.Position++;
 			TIE.Position = 422;
 			if(TIE.ReadByte() != 49) TIE.Position--;
-			for(i = 0;i < 11;i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));		//IFF 4 name
+			bw.Write(br.ReadBytes(11));     //IFF 4 name
 			XvT.Position += 474;XvT.WriteByte(1);XvT.Position++;
 			TIE.Position = 434;
 			if(TIE.ReadByte() != 49) TIE.Position--;
-			for(i = 0;i < 11;i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));		//IFF 5 name
+			bw.Write(br.ReadBytes(11));     //IFF 5 name
 			XvT.Position += 474;XvT.WriteByte(1);XvT.Position++;
 			TIE.Position = 446;
 			if(TIE.ReadByte() != 49) TIE.Position--;
-			for(i = 0;i < 11;i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));		//IFF 6 name
+			bw.Write(br.ReadBytes(11));     //IFF 6 name
 			XvT.Position += 474;XvT.WriteByte(1);										//markers infront of other IFF name spots
 			XvT.Position += 486;XvT.WriteByte(1);
 			XvT.Position += 486;XvT.WriteByte(1);
@@ -512,7 +516,7 @@ namespace Idmr.Converter
 			TIE.Position = 0x21E + 0x124*FGs + 0x5A*Messages;
 			XvTPos = XvT.Position;
 			#region Briefing
-			for (i = 0; i < 0x32A; i++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));	//Briefing
+			bw.Write(br.ReadBytes(0x32A)); //Briefing
 			XvT.WriteByte(1);XvT.Position += 9;
 			XvT.Position = XvTPos;
 			j = (short)(brXvT.ReadInt16() * 0x14 / 0xC);		// adjust overall briefing length
@@ -553,7 +557,7 @@ namespace Idmr.Converter
 				BriefingTagLength += 2 + j;  //[JB] Calculate briefing size so we can factor it into calculations to find the description location.
 				bw.Write(j);             //..write length..
 				if (j != 0)                                     //and copy if not 0
-					for (int k = 0; k < j; k++) XvT.WriteByte(Convert.ToByte(TIE.ReadByte()));
+					for (int k = 0; k < j; k++) XvT.WriteByte(br.ReadByte());
 			}
 			for (i = 0; i < 7; i++)
 			{	// End Briefing event at time=9999
@@ -688,7 +692,7 @@ namespace Idmr.Converter
 			lblType.Text = "TIE";
 			txtExist.Text = exist;
 			File.Delete("temp.tie");
-			if (hidden == false) MessageBox.Show("Conversion completed", "Finished");
+			if (!hidden) MessageBox.Show("Conversion completed", "Finished");
 		}
 
 		void XvT2XWA_ConvertDesignations(byte[] xvt, byte[] xwa)
@@ -1134,39 +1138,39 @@ namespace Idmr.Converter
 			{
 				XvTPos = XvT.Position;
 				XWAPos = XWA.Position;
-				bw.Write(br.ReadByte());bw.Write(br.ReadByte());		//Message# - 1
+				bw.Write(br.ReadInt16());		//Message# - 1
 				switch(XvT.ReadByte())											//takes care of colors if needed
 				{
 					case 49:
-						for(j = 0;j < 63;j++) bw.Write(br.ReadByte());	//green
+						bw.Write(br.ReadBytes(63));	//green
 						XWA.Position = XWAPos + 142;XWA.WriteByte(0);
 						break;
 					case 50:
-						for(j = 0;j < 63;j++) bw.Write(br.ReadByte());	//blue
+						bw.Write(br.ReadBytes(63));	//blue
 						XWA.Position = XWAPos + 142;XWA.WriteByte(2);
 						break;
 					case 51:
-						for(j = 0;j < 63;j++) bw.Write(br.ReadByte());	//yellow
+						bw.Write(br.ReadBytes(63)); ;	//yellow
 						XWA.Position = XWAPos + 142;XWA.WriteByte(3);
 						break;
 					default:
 						XvT.Position--;
-						for(j = 0;j < 64;j++) bw.Write(br.ReadByte());	//red
+						bw.Write(br.ReadBytes(64)); //red
 						XWA.Position = XWAPos + 142;XWA.WriteByte(1);
 						break;
 				}
 				XWA.Position = XWAPos + 82;
-				for(j = 0;j < 14;j++) bw.Write(br.ReadByte());		//Sent to.. -> T1
+				bw.Write(br.ReadBytes(14));     //Sent to.. -> T1
 				ShipFix(XvT, XWA);
-				for(j = 0;j < 4;j++) bw.Write(br.ReadByte());			//T2
+				bw.Write(br.ReadInt32());			//T2
 				ShipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
 				bw.Write(br.ReadByte());								//T1 AND/OR T2
 				XWA.Position++;
-				for(j = 0;j < 4;j++) bw.Write(br.ReadByte());			//T3
+				bw.Write(br.ReadInt32());           //T3
 				ShipFix(XvT, XWA);
-				for(j = 0;j < 4;j++) bw.Write(br.ReadByte());			//T4
+				bw.Write(br.ReadInt32());           //T4
 				ShipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
@@ -1196,112 +1200,112 @@ namespace Idmr.Converter
 				XWA.Position = XWAPos + (0x170 * ti);
 				XWA.WriteByte(3);
 				XvT.Position++;
-				for (i = 0; i < 5; i++) bw.Write(br.ReadByte());		//Prim T1
+				bw.Write(br.ReadInt32());		//Prim T1
 				ShipFix(XvT, XWA);
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//PT2
+				bw.Write(br.ReadInt32());       //PT2
 				ShipFix(XvT, XWA);
 				XWA.Position += 2;
 				XvT.Position += 2;
 				bw.Write(br.ReadByte());							//PT 1 AND/OR 2
 				XWA.Position++;
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//PT 3
+				bw.Write(br.ReadInt32());       //PT 3
 				ShipFix(XvT, XWA);
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//PT 4
+				bw.Write(br.ReadInt32());       //PT 4
 				ShipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
 				bw.Write(br.ReadByte());							//PT 3 AND/OR 4
 				XvT.Position += 17;
 				XWA.Position += 18;
-				for (i = 0; i < 3; i++) bw.Write(br.ReadByte());		//PT (1/2) AND/OR (3/4) -> Points
+				bw.Write(br.ReadBytes(3));		//PT (1/2) AND/OR (3/4) -> Points
 				XWA.Position += 70;
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//Prev T1
+				bw.Write(br.ReadInt32());       //Prev T1
 				ShipFix(XvT, XWA);
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//PT2
+				bw.Write(br.ReadInt32());       //PT2
 				ShipFix(XvT, XWA);
 				XWA.Position += 2;
 				XvT.Position += 2;
 				bw.Write(br.ReadByte());							//PT 1 AND/OR 2
 				XWA.Position++;
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//PT 3
+				bw.Write(br.ReadInt32());       //PT 3
 				ShipFix(XvT, XWA);
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//PT 4
+				bw.Write(br.ReadInt32());       //PT 4
 				ShipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
 				bw.Write(br.ReadByte());							//PT 3 AND/OR 4
 				XvT.Position += 17;
 				XWA.Position += 18;
-				for (i = 0; i < 3; i++) bw.Write(br.ReadByte());		//PT (1/2) AND/OR (3/4) -> Points
+				bw.Write(br.ReadBytes(3));      //PT (1/2) AND/OR (3/4) -> Points
 				XWA.Position += 70;
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//Sec T1
+				bw.Write(br.ReadInt32());       //Sec T1
 				ShipFix(XvT, XWA);
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//ST2
+				bw.Write(br.ReadInt32());       //ST2
 				ShipFix(XvT, XWA);
 				XWA.Position += 2;
 				XvT.Position += 2;
 				bw.Write(br.ReadByte());							//ST 1 AND/OR 2
 				XWA.Position++;
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//ST 3
+				bw.Write(br.ReadInt32());       //ST 3
 				ShipFix(XvT, XWA);
-				for (i = 0; i < 4; i++) bw.Write(br.ReadByte());		//ST 4
+				bw.Write(br.ReadInt32());       //ST 4
 				ShipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
 				bw.Write(br.ReadByte());							//ST 3 AND/OR 4
 				XvT.Position += 17;
 				XWA.Position += 18;
-				for (i = 0; i < 3; i++) bw.Write(br.ReadByte());		//ST (1/2) AND/OR (3/4) -> Points
+				bw.Write(br.ReadBytes(3));      //ST (1/2) AND/OR (3/4) -> Points
 				XWA.Position += 70;
 			}
 			XvT.Position = XvTPos + (0x80 * 10);  //10 teams
 			XWA.Position = XWAPos + (0x170 * 10);
 			#endregion
 			#region IFF/Teams
-			for(i = 0;i < 4870;i++) bw.Write(br.ReadByte());	//well, that was simple..
+			bw.Write(br.ReadBytes(4870));	//well, that was simple..
 			#endregion
 			#region Briefing
 			XWAPos = XWA.Position;
 			long XWABriefing1 = XWAPos;
-			for (i = 0; i < 6; i++) { bw.Write(br.ReadByte()); }	//briefing intro
+			bw.Write(br.ReadBytes(6));	//briefing intro
 			bw.Write((short)(br.ReadInt16() + 10 * Briefs[0])); // adjust length for add/moves
 			XvT.Position += 2;		
 			XWA.Position += 20 * Briefs[0] + 2;
-			for(i = 0;i < 0x32A;i++) { bw.Write(br.ReadByte()); }	//briefing content
+			bw.Write(br.ReadBytes(0x32A));	//briefing content
 			XWA.Position = XWAPos;
 			j = (short)(brXWA.ReadInt16() * 0x19 / 0x14);		// adjust overall briefing length
 			XWA.Position -= 2;
 			bw.Write(j);
 			XWA.Position += 8;
-			for (i=0;i<0x320;i+=4)		// work our way through length of briefing. i automatically increases by 4 per event
+			for (i = 0; i < 0x320; i += 4)      // work our way through length of briefing. i automatically increases by 4 per event
 			{
 				j = brXWA.ReadInt16();
-				if (j == 0x270F) break;		// stop check at t=9999, end briefing
+				if (j == 0x270F) break;     // stop check at t=9999, end briefing
 				j = (short)(j * 0x19 / 0x14);
 				XWA.Position -= 2;
 				bw.Write(j);
-				j = brXWA.ReadInt16();		// now get the event type
-				if (j>8 && j<17)		// FG tags 1-8
+				j = brXWA.ReadInt16();      // now get the event type
+				if (j > 8 && j < 17)        // FG tags 1-8
 				{
-					j = brXWA.ReadInt16();	// FG number
+					j = brXWA.ReadInt16();  // FG number
 					XWA.Position -= 2;
 					bw.Write(fgIcons[j]);   // Overwrite with the Icon#
 					i += 2;
 				}
-				else if (j == 7)		// Zoom map command
+				else if (j == 7)        // Zoom map command
 				{
-					j = (short)(brXWA.ReadInt16() * 124 / 58);	// X
+					j = (short)(brXWA.ReadInt16() * 124 / 58);  // X
 					XWA.Position -= 2;
 					bw.Write(j);
-					j = (short)(brXWA.ReadInt16() * 124 / 88);	// Y
+					j = (short)(brXWA.ReadInt16() * 124 / 88);  // Y
 					XWA.Position -= 2;
 					bw.Write(j);
 					i += 4;
 				}
-				else 
+				else
 				{
-					XWA.Position += 2*BRF[j];       // skip over vars
-					i += (short)(2 * BRF[j]);	// increase length counter by skipped vars
+					XWA.Position += 2 * BRF[j];       // skip over vars
+					i += (short)(2 * BRF[j]);   // increase length counter by skipped vars
 				}
 			}
 			XWA.Position = 0x8960 + (FGs+2)*0xE3E + Messages*0xA2;  //[JB] FGs+2
@@ -1314,10 +1318,7 @@ namespace Idmr.Converter
 				j = br.ReadInt16();     //check length..
 				bw.Write(j);                //..write length..
 				if (j != 0)                                     //and copy if not 0
-				{
-					int k;
-					for (k = 0; k < j; k++) bw.Write(br.ReadByte());
-				}
+					bw.Write(br.ReadBytes(j));
 			}
 			XWA.Position += 192;
 			for (i = 0; i < 32; i++)    //strings
@@ -1325,10 +1326,7 @@ namespace Idmr.Converter
 				j = br.ReadInt16();     //check length..
 				bw.Write(j);                //..write length..
 				if (j != 0)                                     //and copy if not 0
-				{
-					int k;
-					for (k = 0; k < j; k++) bw.Write(br.ReadByte());
-				}
+					bw.Write(br.ReadBytes(j));
 			}
 			XWA.Position += 192;
 			#endregion Briefing T&S
@@ -1338,11 +1336,11 @@ namespace Idmr.Converter
 			{
 				long XWABriefing2 = XWA.Position;
 				XWAPos = XWA.Position;
-				for (i = 0; i < 6; i++) { bw.Write(br.ReadByte()); }	//briefing intro
+				bw.Write(br.ReadBytes(6));	//briefing intro
 				bw.Write((short)(br.ReadInt16() + 10 * Briefs[1]));	// adjust length for add/moves
 				XvT.Position += 2;
 				XWA.Position += 20 * Briefs[1] + 2;
-				for (i = 0; i < 0x32A; i++) { bw.Write(br.ReadByte()); }	//briefing content
+				bw.Write(br.ReadBytes(0x32A));	//briefing content
 				XWA.Position = XWAPos;
 				j = (short)(brXWA.ReadInt16() * 0x19 / 0x14);		// adjust overall briefing length
 				XWA.Position -= 2;
@@ -1387,22 +1385,16 @@ namespace Idmr.Converter
 				{
 					j = br.ReadInt16();		//check length..
 					bw.Write(j);				//..write length..
-					if (j != 0)										//and copy if not 0
-					{
-						int k;
-						for (k = 0; k < j; k++) bw.Write(br.ReadByte());
-					}
+					if (j != 0)                                     //and copy if not 0
+						bw.Write(br.ReadBytes(j));
 				}
 				XWA.Position += 192;
 				for (i = 0; i < 32; i++)	//strings
 				{
 					j = br.ReadInt16();     //check length..
-						bw.Write(j);				//..write length..
-					if (j != 0)										//and copy if not 0
-					{
-						int k;
-						for (k = 0; k < j; k++) bw.Write(br.ReadByte());
-					}
+					bw.Write(j);				//..write length..
+					if (j != 0)                                     //and copy if not 0
+						bw.Write(br.ReadBytes(j));
 				}
 				XWA.Position += 192;
 			}
@@ -1441,9 +1433,8 @@ namespace Idmr.Converter
 					}
 					else
 					{
-						int k;
 						XvT.Position--;
-						for (k = 0; k < 64; k++) bw.Write(br.ReadByte());
+						bw.Write(br.ReadBytes(64));
 					}
 				}
 			}
@@ -1461,9 +1452,8 @@ namespace Idmr.Converter
 					}
 					else
 					{
-						int k;
 						XvT.Position--;
-						for (k = 0; k < 64; k++) bw.Write(br.ReadByte());
+						bw.Write(br.ReadBytes(64));
 					}
 				}
 				XvT.Position += 3072;
@@ -1502,18 +1492,18 @@ namespace Idmr.Converter
 			}
 			else
 			{
-				for (i = 0; i < 4096; i++) { bw.Write(br.ReadByte()); }   // Debrief
+				bw.Write(br.ReadBytes(4096));   // Debrief
 				XWA.WriteByte(35);
-				for (i = 0; i < 4095; i++) { bw.Write(br.ReadByte()); }   // Hints
+				bw.Write(br.ReadBytes(4095));   // Hints
 				XvT.Position++;
 				XWA.WriteByte(35);
-				for (i = 0; i < 4095; i++) { bw.Write(br.ReadByte()); }   // Brief/Description
+				bw.Write(br.ReadBytes(4095));   // Brief/Description
 			}
 			#endregion
 			XWA.WriteByte(0);				//EOF
 			XvT.Close();
 			XWA.Close();
-			if (T2W == false && hidden == false) MessageBox.Show("Conversion completed", "Finished");
+			if (!T2W && !hidden) MessageBox.Show("Conversion completed", "Finished");
 		}
 		
 		void ShipFix(FileStream In, FileStream XWA)		//checks for Ship Type trigger, adjusts value
