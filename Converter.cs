@@ -20,12 +20,14 @@
 * [UPD] Read/WriteInt() replaced with BinaryReader/Writer calls, several variables subsequently changed from int to short
 * [NEW] TIE questions converted to appropriate pre/post-mission text [JB]
 * [NEW] TIE Global Bonus Goals converted to 2nd set of XvT Secondary goals [JB]
+* [NEW] Combat Engagement capability [JB]
 * [NEW] helper function to convert XvT Designations to XWA format [JB]
 * [NEW] additional backdrop added to XWA missions [JB]
 * [UPD] remove multiple player check for XWA Combat missions [JB]
 * [NEW] XWA Order Speed [JB]
 * [FIX] XWA order wait times adjusted due to different multipliers [JB]
 * [UPD] added backdrops now randomized
+* [FIX] corrected XWA message delay [JB]
 * [UPD] XWA GlobalGoals now do all teams [JB]
 * [FIX] offset error in XWA GG Prim T1
 * [NEW] 2nd briefing converted to XWA [JB]
@@ -222,6 +224,8 @@ namespace Idmr.Converter
 			if (lblType.Text == "XvT" | lblType.Text == "BoP") { XvT2XWA(); }
 		}
 		#endregion
+
+		//TODO: Some of the delays may still be off due to different conversion factors
 
 		void TIE2XvT()
 		{
