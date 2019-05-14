@@ -10,7 +10,7 @@
  */
 
 /* CHANGELOG
-* v1.5, 
+* v1.5, 190513
 * [UPD] Source file split to create .Designer.cs
 * [UPD] general cleaning
 * [NEW] BoP functionality [JB]
