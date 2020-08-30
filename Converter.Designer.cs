@@ -92,7 +92,7 @@ namespace Idmr.Converter
 			this.cmdExit.Size = new System.Drawing.Size(80, 22);
 			this.cmdExit.TabIndex = 9;
 			this.cmdExit.Text = "Exit";
-			this.cmdExit.Click += new System.EventHandler(this.CmdExitClick);
+			this.cmdExit.Click += new System.EventHandler(this.cmdExitClick);
 			// 
 			// txtExist
 			// 
@@ -106,14 +106,14 @@ namespace Idmr.Converter
 			this.opnExist.DefaultExt = "tie";
 			this.opnExist.Filter = "Mission Files|*.tie";
 			this.opnExist.Title = "Existing Mission";
-			this.opnExist.FileOk += new System.ComponentModel.CancelEventHandler(this.OpnExistFileOk);
+			this.opnExist.FileOk += new System.ComponentModel.CancelEventHandler(this.opnExistFileOk);
 			// 
 			// savConvert
 			// 
 			this.savConvert.DefaultExt = "tie";
 			this.savConvert.Filter = "Mission Files|*.tie";
 			this.savConvert.Title = "Save as...";
-			this.savConvert.FileOk += new System.ComponentModel.CancelEventHandler(this.SavConvertFileOk);
+			this.savConvert.FileOk += new System.ComponentModel.CancelEventHandler(this.savConvertFileOk);
 			// 
 			// chkXvT2
 			// 
@@ -125,7 +125,7 @@ namespace Idmr.Converter
 			this.chkXvT2.Size = new System.Drawing.Size(56, 15);
 			this.chkXvT2.TabIndex = 14;
 			this.chkXvT2.Text = "XvT";
-			this.chkXvT2.CheckedChanged += new System.EventHandler(this.ChkXvT2CheckedChanged);
+			this.chkXvT2.CheckedChanged += new System.EventHandler(this.chkXvT2CheckedChanged);
 			// 
 			// chkXWA
 			// 
@@ -135,7 +135,7 @@ namespace Idmr.Converter
 			this.chkXWA.Size = new System.Drawing.Size(56, 15);
 			this.chkXWA.TabIndex = 15;
 			this.chkXWA.Text = "XWA";
-			this.chkXWA.CheckedChanged += new System.EventHandler(this.ChkXWACheckedChanged);
+			this.chkXWA.CheckedChanged += new System.EventHandler(this.chkXWACheckedChanged);
 			// 
 			// txtSave
 			// 
@@ -152,7 +152,7 @@ namespace Idmr.Converter
 			this.cmdConvert.Size = new System.Drawing.Size(80, 22);
 			this.cmdConvert.TabIndex = 8;
 			this.cmdConvert.Text = "Convert";
-			this.cmdConvert.Click += new System.EventHandler(this.CmdConvertClick);
+			this.cmdConvert.Click += new System.EventHandler(this.cmdConvertClick);
 			// 
 			// lblType
 			// 
@@ -170,7 +170,7 @@ namespace Idmr.Converter
 			this.cmdExist.Size = new System.Drawing.Size(24, 22);
 			this.cmdExist.TabIndex = 6;
 			this.cmdExist.Text = "...";
-			this.cmdExist.Click += new System.EventHandler(this.CmdExistClick);
+			this.cmdExist.Click += new System.EventHandler(this.cmdExistClick);
 			// 
 			// lblTest
 			// 
@@ -195,7 +195,7 @@ namespace Idmr.Converter
 			this.cmdSave.Size = new System.Drawing.Size(24, 23);
 			this.cmdSave.TabIndex = 7;
 			this.cmdSave.Text = "...";
-			this.cmdSave.Click += new System.EventHandler(this.CmdSaveClick);
+			this.cmdSave.Click += new System.EventHandler(this.cmdSaveClick);
 			// 
 			// optImp
 			// 
