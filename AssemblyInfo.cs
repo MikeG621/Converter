@@ -1,6 +1,6 @@
 /*
- * Convert.exe, Converts mission formats between TIE, XvT and XWA
- * Copyright (C) 2005-2019 Michael Gaisser (mjgaisser@gmail.com)
+ * Convert.exe, Up-converts mission formats between TIE, XvT and XWA
+ * Copyright (C) 2005-2020 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  */
 
@@ -12,11 +12,11 @@ using System.Reflection;
 // associated with an assembly.
 //
 [assembly: AssemblyTitle("IDMR Mission Converter")]
-[assembly: AssemblyDescription("Convert mission formats between TIE, XvT and XWA")]
+[assembly: AssemblyDescription("Up-converts mission formats between TIE, XvT and XWA")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Imperial Department of Military Research")]
 [assembly: AssemblyProduct("IDMR Mission Converter")]
-[assembly: AssemblyCopyright("Copyright © Michael Gaisser 2005-2019")]
+[assembly: AssemblyCopyright("Copyright © Michael Gaisser 2005-2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

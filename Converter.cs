@@ -1,6 +1,6 @@
 /*
  * Convert.exe, Up-converts mission formats between TIE, XvT and XWA
- * Copyright (C) 2005- Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2005-2020 Michael Gaisser (mjgaisser@gmail.com)
  * 
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
@@ -11,6 +11,11 @@
 
 /* CHANGELOG
  * [FIX] overflow in convertOrderTimeXvTToXWA(), shipFix(), shipOFix()
+ * [FIX] missing "l" from "Imperial" in tie2XvT Team name
+ * [FIX] arrival difficulty in xvt2XWA
+ * [UPD] default save name suggested per original and platform
+ * [NEW] IFF name conversion
+ * [FIX] skipping empty XvT briefings, which fixed xvt2XWA FG/Global Goal strings and Mission Desc/EoM
  * v1.5, 190513
  * [UPD] Source file split to create .Designer.cs
  * [UPD] general cleaning
@@ -158,6 +163,15 @@ namespace Idmr.Converter
 		
 		void cmdSaveClick(object sender, EventArgs e)
 		{
+			string fileName = Path.GetFileNameWithoutExtension(txtExist.Text);
+			if (chkXvT2.Checked)
+			{
+				if (chkXvtBop.Checked) fileName += "_BoP";
+				else fileName += "_XvT";
+			}
+			else fileName += "_XWA";
+			fileName += ".tie";
+			savConvert.FileName = fileName;
 			savConvert.ShowDialog();
 		}
 		
@@ -258,6 +272,14 @@ namespace Idmr.Converter
 				XvT.Position = 0x64;
 				XvT.WriteByte(3);  //MPtraining
 			}
+			TIE.Position = 0x19A;
+			XvT.Position = 0x14;
+			for (i = 0; i < 4; i++)	// IFF 3-6 names
+			{
+				XvTPos = XvT.Position;
+				bw.Write(br.ReadBytes(12));
+				XvT.Position = XvTPos + 20;
+			}
 			TIE.Position = 0x1CA;
 			XvT.Position = 0xA4;
 			#region Flight Groups
@@ -305,7 +327,7 @@ namespace Idmr.Converter
 				bw.Write(br.ReadBytes(3));      //Orientation values
 				TIE.Position = TIEPos + 73;
 				XvT.Position = XvTPos + 109;
-				bw.Write(br.ReadBytes(9));      //Arrival trigger 1&2
+				bw.Write(br.ReadBytes(9));      //Arrival diff, trigger 1&2
 				XvT.Position += 2;
 				XvT.WriteByte(br.ReadByte());                              //trigger 1 AND/OR 2
 				TIE.Position += 1;
@@ -476,7 +498,7 @@ namespace Idmr.Converter
 			XvTPos = XvT.Position;
 			XvT.WriteByte(1);
 			XvT.Position++;
-			if (optImp.Checked) XvT.Write(System.Text.Encoding.ASCII.GetBytes("Imperial"), 0, 7);
+			if (optImp.Checked) XvT.Write(System.Text.Encoding.ASCII.GetBytes("Imperial"), 0, 8);
 			else XvT.Write(System.Text.Encoding.ASCII.GetBytes("Rebel"), 0, 5);
 			XvT.Position = XvTPos + 0x1A;
 			XvT.WriteByte(1);									//Team 1 Allies
@@ -500,7 +522,7 @@ namespace Idmr.Converter
 			XvTPos = XvT.Position;
 			XvT.WriteByte(1);XvT.Position++;
 			if (optImp.Checked) XvT.Write(System.Text.Encoding.ASCII.GetBytes("Rebel"), 0, 5);
-			else XvT.Write(System.Text.Encoding.ASCII.GetBytes("Imperial"), 0, 7);
+			else XvT.Write(System.Text.Encoding.ASCII.GetBytes("Imperial"), 0, 8);
 			XvT.Position = XvTPos + 0x1E7;
 			XvT.WriteByte(1);XvT.Position++;
 			if (TIE.ReadByte() != 49) TIE.Position--;                                   //check for hostile char
@@ -691,13 +713,16 @@ namespace Idmr.Converter
 			//instead of writing it all out again, cheat and use the other two
 			T2W = true;
 			string save, exist;
+			bool bop = chkXvtBop.Checked;
 			save = txtSave.Text;
 			exist = txtExist.Text;
 			txtSave.Text = "temp.tie";
+			chkXvtBop.Checked = true;
 			tie2XvT();
 			txtSave.Text = save;
 			txtExist.Text = "temp.tie";
-			lblType.Text = "XvT";
+			lblType.Text = "BoP";
+			chkXvtBop.Checked = bop;
 			xvt2XWA();
 			lblType.Text = "TIE";
 			txtExist.Text = exist;
@@ -776,7 +801,10 @@ namespace Idmr.Converter
 			bw.Write(Messages);
 			fgIcons = new short[FGs];
 		
-			XWA.Position = 8; XWA.WriteByte(1); XWA.Position = 11; XWA.WriteByte(1);		//unknowns
+			XWA.Position = 8; XWA.WriteByte(1); XWA.Position = 11; XWA.WriteByte(1);        //unknowns
+			XvT.Position = 0x14;
+			XWA.Position = 0x14;
+			bw.Write(br.ReadBytes(80));	// IFFs
 			XWA.Position = 100;
 			bw.Write(System.Text.Encoding.ASCII.GetBytes("The Final Frontier"));	//make a nice Region name :P
 			XWA.Position = 0x23AC; XWA.WriteByte(6); 						//starting hangar
@@ -830,7 +858,10 @@ namespace Idmr.Converter
 				XvT.Position += 20;
 				bw.Write(br.ReadBytes(40));   //Cargo & Special
 				XWA.Position = XWAPos + 0x69;
-				bw.Write(br.ReadBytes(30));           //SC ship# -> Arrival Difficulty
+				bw.Write(br.ReadBytes(26));           //SC ship# -> Roll
+				XWA.Position = XWAPos + 0x87;
+				XvT.Position = XvTPos + 0x6D;
+				bw.Write(br.ReadByte());	// Arr difficulty
 				XvT.Position = XvTPos + 0x64;
 				// [JB] Modified
 				if (!chkXvtCombat.Checked)
@@ -1410,8 +1441,11 @@ namespace Idmr.Converter
 			else
 			{
 				XvT.Position += 0x334;    //Jump to tags
-				for (j = 0; j < 64; j++)   //32 tags + 32 strings
-					XvT.Position += br.ReadInt16();
+				for (i = 0; i < 64; i++)
+				{   //32 tags + 32 strings
+					j = br.ReadInt16();
+					XvT.Position += j;
+				}
 				XWA.Position += 0x4614;  //Empty briefing plus empty tags/strings
 			}
 			#endregion Briefing2
@@ -1427,8 +1461,12 @@ namespace Idmr.Converter
 			for (i = 2; i < 8; i++)
 			{
 				XvT.Position += 0x334;    //Jump to tags
-				for (j = 0; j < 64; j++)   //32 tags + 32 strings
-					XvT.Position += br.ReadInt16();
+				short l;
+				for (j = 0; j < 64; j++)
+				{  //32 tags + 32 strings
+					l = br.ReadInt16();
+					XvT.Position += l;
+				}
 			}
 			#region FG Goal strings
 			for (i = 0; i < FGs; i++)
