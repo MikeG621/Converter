@@ -16,6 +16,7 @@
  * [UPD] default save name suggested per original and platform
  * [NEW] IFF name conversion
  * [FIX] skipping empty XvT briefings, which fixed xvt2XWA FG/Global Goal strings and Mission Desc/EoM
+ * [FIX] xvt2WA global goals
  * v1.5, 190513
  * [UPD] Source file split to create .Designer.cs
  * [UPD] general cleaning
@@ -235,11 +236,12 @@ namespace Idmr.Converter
 		
 		void cmdConvertClick(object sender, EventArgs e)
 		{
+			T2W = false;
 			if (txtExist.Text == "" | txtSave.Text == "") { return; }
 			if (lblType.Text == "TIE")
 			{
-				if (chkXvT2.Checked == true) { tie2XvT(); }
-				if (chkXWA.Checked == true) { tie2XWA(); }
+				if (chkXvT2.Checked) { tie2XvT(); }
+				if (chkXWA.Checked) { tie2XWA(); }
 			}
 			if (lblType.Text == "XvT" | lblType.Text == "BoP") { xvt2XWA(); }
 		}
@@ -1239,19 +1241,24 @@ namespace Idmr.Converter
 				XvT.Position = XvTPos + (0x80 * ti);
 				XWA.Position = XWAPos + (0x170 * ti);
 				XWA.WriteByte(3);
-				XvT.Position++;
-				bw.Write(br.ReadInt32());		//Prim T1
-				shipFix(XvT, XWA);
+				XWA.Position++;
+				XvT.Position += 2;
+				bw.Write(br.ReadInt32());       //Prim T1
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				bw.Write(br.ReadInt32());       //PT2
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				XWA.Position += 2;
 				XvT.Position += 2;
 				bw.Write(br.ReadByte());							//PT 1 AND/OR 2
 				XWA.Position++;
 				bw.Write(br.ReadInt32());       //PT 3
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				bw.Write(br.ReadInt32());       //PT 4
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
 				bw.Write(br.ReadByte());							//PT 3 AND/OR 4
@@ -1260,17 +1267,21 @@ namespace Idmr.Converter
 				bw.Write(br.ReadBytes(3));		//PT (1/2) AND/OR (3/4) -> Points
 				XWA.Position += 70;
 				bw.Write(br.ReadInt32());       //Prev T1
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				bw.Write(br.ReadInt32());       //PT2
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				XWA.Position += 2;
 				XvT.Position += 2;
 				bw.Write(br.ReadByte());							//PT 1 AND/OR 2
 				XWA.Position++;
 				bw.Write(br.ReadInt32());       //PT 3
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				bw.Write(br.ReadInt32());       //PT 4
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
 				bw.Write(br.ReadByte());							//PT 3 AND/OR 4
@@ -1279,17 +1290,21 @@ namespace Idmr.Converter
 				bw.Write(br.ReadBytes(3));      //PT (1/2) AND/OR (3/4) -> Points
 				XWA.Position += 70;
 				bw.Write(br.ReadInt32());       //Sec T1
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				bw.Write(br.ReadInt32());       //ST2
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				XWA.Position += 2;
 				XvT.Position += 2;
 				bw.Write(br.ReadByte());							//ST 1 AND/OR 2
 				XWA.Position++;
 				bw.Write(br.ReadInt32());       //ST 3
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				bw.Write(br.ReadInt32());       //ST 4
-				shipFix(XvT, XWA);
+				XWA.Position += 2;
+				//shipFix(XvT, XWA);
 				XvT.Position += 2;
 				XWA.Position += 2;
 				bw.Write(br.ReadByte());							//ST 3 AND/OR 4
