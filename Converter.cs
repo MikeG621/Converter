@@ -10,6 +10,7 @@
  */
 
 /* CHANGELOG
+ * [UPD] Program.cs split out
  * [FIX] overflow in convertOrderTimeXvTToXWA()
  * [FIX] missing "l" from "Imperial" in tie2XvT Team name
  * [FIX] arrival difficulty in xvt2XWA
@@ -56,19 +57,19 @@ namespace Idmr.Converter
 	{
 		public static bool T2W = false;
 		static bool _hidden = false;
-		public static string[] Arg;
 		readonly static short[] _brf = {0,0,0,0,1,1,2,2,0,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,3,2,3,2,1,0,0,0,0};
 
-		public MainForm()
+		public MainForm(string[] args, bool hidden)
 		{
 			InitializeComponent();
+			_hidden = hidden;
 			if (_hidden == true)		//cmdline run
 			{
 				Hide();		//don't need the form, just the txt
-				txtExist.Text = Arg[0];
+				txtExist.Text = args[0];
 				try
 				{
-					if (File.Exists(Arg[0]) == false) throw new Exception("Cannot locate original file.");
+					if (File.Exists(args[0]) == false) throw new Exception("Cannot locate original file.");
 					FileStream test;
 					test = File.OpenRead(txtExist.Text);
 					int d = test.ReadByte();	//check platform, really only make sure it's not XWA and legit
@@ -86,8 +87,8 @@ namespace Idmr.Converter
 							throw new Exception("Invalid file");
 					}
 					test.Close();
-					txtSave.Text = Arg[1];
-					switch (Arg[2])		//check mode
+					txtSave.Text = args[1];
+					switch (args[2])		//check mode
 					{
 						case "1":
 							if (d == 255) tie2XvT();
@@ -113,29 +114,6 @@ namespace Idmr.Converter
 				}
 				finally { Application.Exit(); }
 			}
-		}
-
-		[STAThread]
-#pragma warning disable IDE1006 // Naming Styles
-		static void Main(string[] Args)
-#pragma warning restore IDE1006 // Naming Styles
-		{
-			if (Args.Length > 0 && Args.Length != 3) // if args are detected but not the correct amount, treat as mis-use
-			{
-				MessageBox.Show("Incorrect parameter usage. Correct usage is as follows:\nOriginal path, new path, mode\nModes: 1 - TIE to XvT, 2 - TIE to XWA, 3 - XvT to XWA", "Error");
-				return;
-			}
-			if (Args.Length == 3)
-			{
-				Arg = new string[3];
-				int i;
-				for (i=0;i<3;i++)
-				{
-					Arg[i] = Args[i]; 
-				}
-				_hidden = true;		//run silent
-			}
-			Application.Run(new MainForm());
 		}
 
 		#region Check boxes
