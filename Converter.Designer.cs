@@ -24,9 +24,6 @@ namespace Idmr.Converter
 		private System.Windows.Forms.TextBox txtExist;
 		private System.Windows.Forms.Button cmdExit;
 		private System.Windows.Forms.Label lblSave;
-		private System.Windows.Forms.RadioButton optImp;
-		private System.Windows.Forms.RadioButton optReb;
-		private System.Windows.Forms.Label lblPlayer;
 		/// <summary>Required designer variable.</summary>
 		private System.ComponentModel.Container components = null;
 		private System.Windows.Forms.CheckBox chkXvtCombat;
@@ -68,9 +65,6 @@ namespace Idmr.Converter
 			this.lblTest = new System.Windows.Forms.Label();
 			this.lblExist = new System.Windows.Forms.Label();
 			this.cmdSave = new System.Windows.Forms.Button();
-			this.optImp = new System.Windows.Forms.RadioButton();
-			this.optReb = new System.Windows.Forms.RadioButton();
-			this.lblPlayer = new System.Windows.Forms.Label();
 			this.chkXvtCombat = new System.Windows.Forms.CheckBox();
 			this.chkToBop = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
@@ -197,35 +191,6 @@ namespace Idmr.Converter
 			this.cmdSave.Text = "...";
 			this.cmdSave.Click += new System.EventHandler(this.cmdSaveClick);
 			// 
-			// optImp
-			// 
-			this.optImp.Checked = true;
-			this.optImp.Location = new System.Drawing.Point(112, 56);
-			this.optImp.Name = "optImp";
-			this.optImp.Size = new System.Drawing.Size(64, 16);
-			this.optImp.TabIndex = 18;
-			this.optImp.TabStop = true;
-			this.optImp.Text = "Imperial";
-			this.optImp.Visible = false;
-			// 
-			// optReb
-			// 
-			this.optReb.Location = new System.Drawing.Point(184, 56);
-			this.optReb.Name = "optReb";
-			this.optReb.Size = new System.Drawing.Size(56, 16);
-			this.optReb.TabIndex = 18;
-			this.optReb.Text = "Rebel";
-			this.optReb.Visible = false;
-			// 
-			// lblPlayer
-			// 
-			this.lblPlayer.Location = new System.Drawing.Point(48, 56);
-			this.lblPlayer.Name = "lblPlayer";
-			this.lblPlayer.Size = new System.Drawing.Size(56, 16);
-			this.lblPlayer.TabIndex = 19;
-			this.lblPlayer.Text = "Player is:";
-			this.lblPlayer.Visible = false;
-			// 
 			// chkXvtCombat
 			// 
 			this.chkXvtCombat.AutoSize = true;
@@ -258,8 +223,6 @@ namespace Idmr.Converter
 			this.ClientSize = new System.Drawing.Size(392, 204);
 			this.Controls.Add(this.chkToBop);
 			this.Controls.Add(this.chkXvtCombat);
-			this.Controls.Add(this.lblPlayer);
-			this.Controls.Add(this.optImp);
 			this.Controls.Add(this.lblType);
 			this.Controls.Add(this.lblTest);
 			this.Controls.Add(this.chkToXWA);
@@ -272,7 +235,6 @@ namespace Idmr.Converter
 			this.Controls.Add(this.cmdExist);
 			this.Controls.Add(this.txtSave);
 			this.Controls.Add(this.txtExist);
-			this.Controls.Add(this.optReb);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.Name = "MainForm";

@@ -93,6 +93,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Processor.cs" />
     <Compile Include="Program.cs" />
     <Content Include="App.ico" />
     <Compile Include="AssemblyInfo.cs">
