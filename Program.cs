@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * VERSION: 1.5+
+ * VERSION: 1.6
  */
 
 /* CHANGELOG
+ * v1.6, 200906
  * [NEW] Program.cs split out
  * [UPD] Error message, Arg handling
  */
