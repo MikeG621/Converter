@@ -19,6 +19,7 @@
  * [FIX] skipping empty XvT briefings, which fixed xvt2XWA FG/Global Goal strings and Mission Desc/EoM
  * [FIX] xvt2WA global goals
  * [FIX] removed shipFix and shipOFix entirely, since it was breaking the offset, not fixing it (likely due to changes in Platform/YOGEME)
+ * [UPD] Error message, Arg handling
  * v1.5, 190513
  * [UPD] Source file split to create .Designer.cs
  * [UPD] general cleaning
@@ -55,58 +56,69 @@ namespace Idmr.Converter
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		public static bool T2W = false;
-		static bool _hidden = false;
+		public bool T2W = false;
+		public static readonly string ExceptionMessage = "Incorrect parameter usage. Correct usage is as follows:\n" +
+									"<original path> <new path> (mode)\n" +
+									"Modes: 1 - TIE to XvT, 2 - TIE/XvT/BoP to XWA, 4 - TIE to BoP\n" +
+									"Mode is optional and ignored for XvT/BoP.";
+		readonly bool _hidden = false;
 		readonly static short[] _brf = {0,0,0,0,1,1,2,2,0,1,1,1,1,1,1,1,1,0,4,4,4,4,4,4,4,4,3,2,3,2,1,0,0,0,0};
 
 		public MainForm(string[] args, bool hidden)
 		{
 			InitializeComponent();
 			_hidden = hidden;
-			if (_hidden == true)		//cmdline run
+			if (_hidden)		//cmdline run
 			{
 				Hide();		//don't need the form, just the txt
 				txtExist.Text = args[0];
 				try
 				{
-					if (File.Exists(args[0]) == false) throw new Exception("Cannot locate original file.");
-					FileStream test;
-					test = File.OpenRead(txtExist.Text);
-					int d = test.ReadByte();	//check platform, really only make sure it's not XWA and legit
+					if (!File.Exists(args[0])) throw new Exception("Cannot locate original file.");
+					FileStream test = File.OpenRead(txtExist.Text);
+					int d = test.ReadByte();    //check platform, really only make sure it's not XWA and legit
+					test.Close();
 					switch (d)
 					{
 						case 255:
-							break;
 						case 12:
-							break;
 						case 14:
 							break;
 						case 18:
 							throw new Exception("Cannot convert existing XWA missions.");
 						default:
-							throw new Exception("Invalid file");
+							throw new Exception("Invalid source file");
 					}
-					test.Close();
 					txtSave.Text = args[1];
-					switch (args[2])		//check mode
+					if (args.Length == 3)
 					{
-						case "1":
-							if (d == 255) tie2XvT();
-							else throw new Exception("Invalid conversion type for file specified.");
-							break;
-						case "2":
-							chkXWA.Checked = true;
-							if (d == 255) tie2XWA();
-							else throw new Exception("Invalid conversion type for file specified.");
-							break;
-						case "3":
-							chkXWA.Checked = true;
-							if (d == 12 || d == 14) xvt2XWA();
-							else throw new Exception("Invalid conversion type for file specified.");
-							break;
-						default:
-							throw new Exception("Incorrect parameter usage. Correct usage is as follows:\nOriginal path, new path, mode\nModes: 1 - TIE to XvT, 2 - TIE to XWA, 3 - XvT to XWA");
+						string invalid = "Invalid conversion type for file specified.";
+						switch (args[2])        //check mode
+						{
+							case "1":
+								if (d == 255) tie2XvT(false);
+								else throw new Exception(invalid);
+								break;
+							case "2":
+								chkToXWA.Checked = true;
+								if (d == 255) tie2XWA();
+								else if (d == 12 || d == 14) xvt2XWA();
+								break;
+							case "3":	// deprecated, original functionality unchanged
+								if (d == 12 || d == 14) xvt2XWA();
+								else throw new Exception(invalid);
+								break;
+							case "4":
+								chkToBop.Checked = true;
+								if (d == 255) tie2XvT(true);
+								else throw new Exception(invalid);
+								break;
+							default:
+								throw new Exception(ExceptionMessage);
+						}
 					}
+					else if (d == 12 || d == 14) xvt2XWA();
+					else throw new Exception(ExceptionMessage);
 				}
 				catch (Exception x)
 				{
@@ -117,16 +129,16 @@ namespace Idmr.Converter
 		}
 
 		#region Check boxes
-		void chkXvT2CheckedChanged(object sender, EventArgs e)
+		void chkToXvTCheckedChanged(object sender, EventArgs e)
 		{
-			chkXWA.Checked = !chkXvT2.Checked;
-			chkXvtBop.Visible = chkXvT2.Checked;
+			chkToXWA.Checked = !chkToXvT.Checked;
+			chkToBop.Visible = chkToXvT.Checked;
 		}
 		
-		void chkXWACheckedChanged(object sender, EventArgs e)
+		void chkToXWACheckedChanged(object sender, EventArgs e)
 		{
-			chkXvT2.Checked = !chkXWA.Checked;
-			chkXvtBop.Visible = !chkXWA.Checked; //[JB] Updated to hide BoP checkbox.
+			chkToXvT.Checked = !chkToXWA.Checked;
+			chkToBop.Visible = !chkToXWA.Checked; //[JB] Updated to hide BoP checkbox.
 		}
 		#endregion
 
@@ -144,9 +156,9 @@ namespace Idmr.Converter
 		void cmdSaveClick(object sender, EventArgs e)
 		{
 			string fileName = Path.GetFileNameWithoutExtension(txtExist.Text);
-			if (chkXvT2.Checked)
+			if (chkToXvT.Checked)
 			{
-				if (chkXvtBop.Checked) fileName += "_BoP";
+				if (chkToBop.Checked) fileName += "_BoP";
 				else fileName += "_XvT";
 			}
 			else fileName += "_XWA";
@@ -158,40 +170,40 @@ namespace Idmr.Converter
 		void opnExistFileOk(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			txtExist.Text = opnExist.FileName;
-			FileStream Test;
-			Test = File.OpenRead(txtExist.Text);
+			FileStream test = File.OpenRead(txtExist.Text);
 			lblPlayer.Visible = false;
 			optImp.Visible = false;
 			optReb.Visible = false;
 			chkXvtCombat.Visible = false; //[JB] Added
-			chkXvtBop.Visible = false;
-			int d = Test.ReadByte();
+			chkToBop.Visible = false;
+			int d = test.ReadByte();
+			test.Close();
 			switch (d)
 			{
 				case 255:
 					lblType.Text = "TIE";
-					chkXvT2.Enabled = true;
-					chkXWA.Enabled = true;
+					chkToXvT.Enabled = true;
+					chkToXWA.Enabled = true;
 					lblPlayer.Visible = true;
 					optImp.Checked = true;
 					optImp.Visible = true;
 					optReb.Visible = true;
-					chkXvtBop.Visible = chkXvT2.Checked;
+					chkToBop.Visible = chkToXvT.Checked;
 					break;
 				case 12:
 					lblType.Text = "XvT";
-					chkXvT2.Checked = false;
-					chkXWA.Checked = true;
-					chkXvT2.Enabled = false;
-					chkXWA.Enabled = false;
+					chkToXvT.Checked = false;
+					chkToXWA.Checked = true;
+					chkToXvT.Enabled = false;
+					chkToXWA.Enabled = false;
 					chkXvtCombat.Visible = true;  //[JB] Added
 					break;
 				case 14:
 					lblType.Text = "BoP";
-					chkXvT2.Checked = false;
-					chkXWA.Checked = true;
-					chkXvT2.Enabled = false;
-					chkXWA.Enabled = false;
+					chkToXvT.Checked = false;
+					chkToXWA.Checked = true;
+					chkToXvT.Enabled = false;
+					chkToXWA.Enabled = false;
 					chkXvtCombat.Visible = true;  //[JB] Added
 					break;
 				case 18:
@@ -205,7 +217,6 @@ namespace Idmr.Converter
 					lblType.Text = "";
 					break;
 			}
-			Test.Close();
 		}
 		
 		void savConvertFileOk(object sender, System.ComponentModel.CancelEventArgs e)
@@ -219,16 +230,16 @@ namespace Idmr.Converter
 			if (txtExist.Text == "" | txtSave.Text == "") { return; }
 			if (lblType.Text == "TIE")
 			{
-				if (chkXvT2.Checked) { tie2XvT(); }
-				if (chkXWA.Checked) { tie2XWA(); }
+				if (chkToXvT.Checked) { tie2XvT(chkToBop.Checked); }
+				if (chkToXWA.Checked) { tie2XWA(); }
 			}
 			if (lblType.Text == "XvT" | lblType.Text == "BoP") { xvt2XWA(); }
 		}
 		#endregion
 
-		//TODO: Some of the delays may still be off due to different conversion factors
+		//NOTE: Some of the delays may still be off due to different conversion factors
 
-		void tie2XvT()
+		void tie2XvT(bool toBoP)
 		{
 			FileStream TIE, XvT;
 			TIE = File.OpenRead(txtExist.Text);
@@ -237,9 +248,8 @@ namespace Idmr.Converter
 			BinaryWriter bw = new BinaryWriter(XvT);
 			BinaryReader brXvT = new BinaryReader(XvT);
 			long xvtPos;
-			byte format = 12;  //[JB] Added platform selection for XvT/BoP
-			if (chkXvtBop.Checked) format = 14;
-			XvT.WriteByte(format);			//XvT format
+			if (toBoP) XvT.WriteByte(14);
+			else XvT.WriteByte(12);
 
 			XvT.Position = 2;
 			TIE.Position = 2;
@@ -248,7 +258,7 @@ namespace Idmr.Converter
 			TIE.Position = 2;
 			short fgs = br.ReadInt16();			//store them
 			short messages = br.ReadInt16();
-			if (chkXvtBop.Checked)  //[JB] patch in
+			if (toBoP)  //[JB] patch in
 			{
 				XvT.Position = 0x64;
 				XvT.WriteByte(3);  //MPtraining
@@ -654,13 +664,13 @@ namespace Idmr.Converter
 			XvT.Position += (0x600 * fgs) + 0x5A00;  //FGGoalStrings(FGs*8*3*64) + GlobalGoalStrings(10*3*4*3*64)
 			XvT.Position += (0xC00 * 10);  //Empty GlobalGoalStrings data.
 
-			int maxLength = (format == 12 ? 0x400 : 0x1000);
+			int maxLength = (!toBoP ? 0x400 : 0x1000);
 			if (preMissionQuestions.Length > maxLength) preMissionQuestions = preMissionQuestions.Remove(maxLength);
 			if (postMissionSuccess.Length > maxLength) postMissionSuccess = postMissionSuccess.Remove(maxLength);
 			if (postMissionFail.Length > maxLength) postMissionFail = postMissionFail.Remove(maxLength);
 
 			byte[] desc;
-			if (format == 12) desc = System.Text.Encoding.ASCII.GetBytes(preMissionQuestions);
+			if (!toBoP) desc = System.Text.Encoding.ASCII.GetBytes(preMissionQuestions);
 			else desc = System.Text.Encoding.ASCII.GetBytes(postMissionSuccess);
 
 			xvtPos = XvT.Position;
@@ -668,7 +678,7 @@ namespace Idmr.Converter
 			XvT.Position = xvtPos + maxLength - 1;
 			XvT.WriteByte(0);
 
-			if (format == 14)
+			if (toBoP)
 			{
 				xvtPos += maxLength;
 				desc = System.Text.Encoding.ASCII.GetBytes(postMissionFail);
@@ -693,21 +703,17 @@ namespace Idmr.Converter
 		{
 			//instead of writing it all out again, cheat and use the other two
 			T2W = true;
-			string save, exist;
-			bool bop = chkXvtBop.Checked;
+			string save, exist, temp;
 			save = txtSave.Text;
 			exist = txtExist.Text;
-			txtSave.Text = "temp.tie";
-			chkXvtBop.Checked = true;
-			tie2XvT();
+			temp = "temp.tie";
+			txtSave.Text = temp;
+			tie2XvT(true);
 			txtSave.Text = save;
-			txtExist.Text = "temp.tie";
-			lblType.Text = "BoP";
-			chkXvtBop.Checked = bop;
+			txtExist.Text = temp;
 			xvt2XWA();
-			lblType.Text = "TIE";
 			txtExist.Text = exist;
-			File.Delete("temp.tie");
+			File.Delete(temp);
 			if (!_hidden) MessageBox.Show("Conversion completed", "Finished");
 		}
 
@@ -774,6 +780,7 @@ namespace Idmr.Converter
 			BinaryWriter bw = new BinaryWriter(XWA);
 			XWA.WriteByte(18);
 			XWA.Position++;
+			bool isBoP = (XvT.ReadByte() == 14);
 			XvT.Position = 2;
 			short i, j;
 			short fgs = br.ReadInt16();
@@ -1479,7 +1486,7 @@ namespace Idmr.Converter
 			#endregion
 			XWA.Position += 3552;               //skip custom order strings
 			#region Debrief and Descrip
-			if (lblType.Text == "XvT")
+			if (!isBoP)
 			{
 				XWA.Position += 4096;
 				XWA.WriteByte(35);

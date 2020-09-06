@@ -11,7 +11,9 @@
 
 /* CHANGELOG
  * [NEW] Program split out
+ * [UPD] Error message, Arg handling
  */
+
 using System;
 using System.Windows.Forms;
 
@@ -24,12 +26,12 @@ namespace Idmr.Converter
 		static void Main(string[] Args)
 #pragma warning restore IDE1006 // Naming Styles
 		{
-			if (Args.Length > 0 && Args.Length != 3) // if args are detected but not the correct amount, treat as mis-use
+			if (Args.Length > 0 && (Args.Length < 2 || Args.Length > 3)) // if args are detected but not the correct amount, treat as mis-use
 			{
-				MessageBox.Show("Incorrect parameter usage. Correct usage is as follows:\nOriginal path, new path, mode\nModes: 1 - TIE to XvT, 2 - TIE to XWA, 3 - XvT to XWA", "Error");
+				MessageBox.Show(MainForm.ExceptionMessage, "Error");
 				return;
 			}
-			bool hidden = (Args.Length == 3);
+			bool hidden = (Args.Length >= 2);
 			Application.Run(new MainForm(Args, hidden));
 		}
 	}

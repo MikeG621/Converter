@@ -17,8 +17,8 @@ namespace Idmr.Converter
 		private System.Windows.Forms.Label lblType;
 		private System.Windows.Forms.Button cmdConvert;
 		private System.Windows.Forms.TextBox txtSave;
-		private System.Windows.Forms.CheckBox chkXWA;
-		private System.Windows.Forms.CheckBox chkXvT2;
+		private System.Windows.Forms.CheckBox chkToXWA;
+		private System.Windows.Forms.CheckBox chkToXvT;
 		private System.Windows.Forms.SaveFileDialog savConvert;
 		private System.Windows.Forms.OpenFileDialog opnExist;
 		private System.Windows.Forms.TextBox txtExist;
@@ -30,7 +30,7 @@ namespace Idmr.Converter
 		/// <summary>Required designer variable.</summary>
 		private System.ComponentModel.Container components = null;
 		private System.Windows.Forms.CheckBox chkXvtCombat;
-		private System.Windows.Forms.CheckBox chkXvtBop;
+		private System.Windows.Forms.CheckBox chkToBop;
 
 		/// <summary>Clean up any resources being used.</summary>
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
@@ -59,8 +59,8 @@ namespace Idmr.Converter
 			this.txtExist = new System.Windows.Forms.TextBox();
 			this.opnExist = new System.Windows.Forms.OpenFileDialog();
 			this.savConvert = new System.Windows.Forms.SaveFileDialog();
-			this.chkXvT2 = new System.Windows.Forms.CheckBox();
-			this.chkXWA = new System.Windows.Forms.CheckBox();
+			this.chkToXvT = new System.Windows.Forms.CheckBox();
+			this.chkToXWA = new System.Windows.Forms.CheckBox();
 			this.txtSave = new System.Windows.Forms.TextBox();
 			this.cmdConvert = new System.Windows.Forms.Button();
 			this.lblType = new System.Windows.Forms.Label();
@@ -72,7 +72,7 @@ namespace Idmr.Converter
 			this.optReb = new System.Windows.Forms.RadioButton();
 			this.lblPlayer = new System.Windows.Forms.Label();
 			this.chkXvtCombat = new System.Windows.Forms.CheckBox();
-			this.chkXvtBop = new System.Windows.Forms.CheckBox();
+			this.chkToBop = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// lblSave
@@ -115,27 +115,27 @@ namespace Idmr.Converter
 			this.savConvert.Title = "Save as...";
 			this.savConvert.FileOk += new System.ComponentModel.CancelEventHandler(this.savConvertFileOk);
 			// 
-			// chkXvT2
+			// chkToXvT
 			// 
-			this.chkXvT2.Checked = true;
-			this.chkXvT2.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.chkXvT2.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.chkXvT2.Location = new System.Drawing.Point(328, 104);
-			this.chkXvT2.Name = "chkXvT2";
-			this.chkXvT2.Size = new System.Drawing.Size(56, 15);
-			this.chkXvT2.TabIndex = 14;
-			this.chkXvT2.Text = "XvT";
-			this.chkXvT2.CheckedChanged += new System.EventHandler(this.chkXvT2CheckedChanged);
+			this.chkToXvT.Checked = true;
+			this.chkToXvT.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.chkToXvT.FlatStyle = System.Windows.Forms.FlatStyle.System;
+			this.chkToXvT.Location = new System.Drawing.Point(328, 104);
+			this.chkToXvT.Name = "chkToXvT";
+			this.chkToXvT.Size = new System.Drawing.Size(56, 15);
+			this.chkToXvT.TabIndex = 14;
+			this.chkToXvT.Text = "XvT";
+			this.chkToXvT.CheckedChanged += new System.EventHandler(this.chkToXvTCheckedChanged);
 			// 
-			// chkXWA
+			// chkToXWA
 			// 
-			this.chkXWA.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.chkXWA.Location = new System.Drawing.Point(328, 126);
-			this.chkXWA.Name = "chkXWA";
-			this.chkXWA.Size = new System.Drawing.Size(56, 15);
-			this.chkXWA.TabIndex = 15;
-			this.chkXWA.Text = "XWA";
-			this.chkXWA.CheckedChanged += new System.EventHandler(this.chkXWACheckedChanged);
+			this.chkToXWA.FlatStyle = System.Windows.Forms.FlatStyle.System;
+			this.chkToXWA.Location = new System.Drawing.Point(328, 126);
+			this.chkToXWA.Name = "chkToXWA";
+			this.chkToXWA.Size = new System.Drawing.Size(56, 15);
+			this.chkToXWA.TabIndex = 15;
+			this.chkToXWA.Text = "XWA";
+			this.chkToXWA.CheckedChanged += new System.EventHandler(this.chkToXWACheckedChanged);
 			// 
 			// txtSave
 			// 
@@ -237,18 +237,18 @@ namespace Idmr.Converter
 			this.chkXvtCombat.UseVisualStyleBackColor = true;
 			this.chkXvtCombat.Visible = false;
 			// 
-			// chkXvtBop
+			// chkToBop
 			// 
-			this.chkXvtBop.AutoSize = true;
-			this.chkXvtBop.Checked = true;
-			this.chkXvtBop.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.chkXvtBop.Location = new System.Drawing.Point(96, 141);
-			this.chkXvtBop.Name = "chkXvtBop";
-			this.chkXvtBop.Size = new System.Drawing.Size(188, 17);
-			this.chkXvtBop.TabIndex = 21;
-			this.chkXvtBop.Text = "Save as BoP (longer descriptions).";
-			this.chkXvtBop.UseVisualStyleBackColor = true;
-			this.chkXvtBop.Visible = false;
+			this.chkToBop.AutoSize = true;
+			this.chkToBop.Checked = true;
+			this.chkToBop.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.chkToBop.Location = new System.Drawing.Point(96, 141);
+			this.chkToBop.Name = "chkToBop";
+			this.chkToBop.Size = new System.Drawing.Size(188, 17);
+			this.chkToBop.TabIndex = 21;
+			this.chkToBop.Text = "Save as BoP (longer descriptions).";
+			this.chkToBop.UseVisualStyleBackColor = true;
+			this.chkToBop.Visible = false;
 			// 
 			// MainForm
 			// 
@@ -256,14 +256,14 @@ namespace Idmr.Converter
 			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
 			this.CancelButton = this.cmdExit;
 			this.ClientSize = new System.Drawing.Size(392, 204);
-			this.Controls.Add(this.chkXvtBop);
+			this.Controls.Add(this.chkToBop);
 			this.Controls.Add(this.chkXvtCombat);
 			this.Controls.Add(this.lblPlayer);
 			this.Controls.Add(this.optImp);
 			this.Controls.Add(this.lblType);
 			this.Controls.Add(this.lblTest);
-			this.Controls.Add(this.chkXWA);
-			this.Controls.Add(this.chkXvT2);
+			this.Controls.Add(this.chkToXWA);
+			this.Controls.Add(this.chkToXvT);
 			this.Controls.Add(this.lblSave);
 			this.Controls.Add(this.lblExist);
 			this.Controls.Add(this.cmdExit);
