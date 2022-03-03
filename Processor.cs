@@ -1,15 +1,17 @@
 ﻿/*
  * Convert.exe, Up-converts mission formats between TIE, XvT and XWA
- * Copyright (C) 2005-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2005-2022 Michael Gaisser (mjgaisser@gmail.com)
  * 
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * VERSION: 1.6
+ * VERSION: 1.7
  */
 
 /* CHANGELOG
+ * [FIX] XvT to XWA Order waypoints
+ * [FIX] XvT to XWA target Ship Type indexes
  * v1.6, 200906
  * [NEW] Split out source
  * [FIX] overflow in convertOrderTimeXvTToXWA()
@@ -646,6 +648,8 @@ namespace Idmr.Converter
 				long xvtSubOrderStart = xvt.Position;  //[JB] I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				long xwaSubOrderStart = xwa.Position;
 				bw.Write(br.ReadBytes(18));       //Order 1
+				//xwa.Position += 2;
+				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
 				{
@@ -679,6 +683,8 @@ namespace Idmr.Converter
 				xvtSubOrderStart = xvt.Position;  //[JB] ShipOFix modifies the offsets and I assume it's bad to add anything so I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				xwaSubOrderStart = xwa.Position;
 				bw.Write(br.ReadBytes(18));       //Order 2
+				//xwa.Position += 2;
+				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
 				{
@@ -705,7 +711,9 @@ namespace Idmr.Converter
 				xvt.Position = xvtPos + 0x146;
 				xvtSubOrderStart = xvt.Position;  //[JB] ShipOFix modifies the offsets and I assume it's bad to add anything so I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				xwaSubOrderStart = xwa.Position;
-				bw.Write(br.ReadBytes(18));       //Order 3
+				//bw.Write(br.ReadBytes(18));       //Order 3
+				//xwa.Position += 2;
+				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
 				{
@@ -733,6 +741,8 @@ namespace Idmr.Converter
 				xvtSubOrderStart = xvt.Position;  //[JB] ShipOFix modifies the offsets and I assume it's bad to add anything so I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				xwaSubOrderStart = xwa.Position;
 				bw.Write(br.ReadBytes(18));       //Order 4
+				//xwa.Position += 2;
+				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
 				{
@@ -1370,6 +1380,60 @@ namespace Idmr.Converter
 
 			xvt.Position = curXvT;
 			xwa.Position = curXWA;
+		}
+
+		static void shipOFix(FileStream original, FileStream xwa)  //seperate function for Orders
+		{
+			original.Position -= 12;
+			if (original.ReadByte() == 2)               //Target 3
+			{
+				original.Position++;
+				xwa.Position -= 10;
+				byte shipType = (byte)original.ReadByte();
+				if (shipType != 255) shipType += 1;
+				xwa.WriteByte(shipType);
+				original.Position -= 2;
+			}
+			else { xwa.Position -= 9; }
+			if (original.ReadByte() == 2)               //Target 4
+			{
+				original.Position++;
+				byte shipType = (byte)original.ReadByte();
+				if (shipType != 255) shipType += 1;
+				xwa.WriteByte(shipType);
+				original.Position += 2;
+				xwa.Position += 3;
+			}
+			else
+			{
+				xwa.Position += 4;
+				original.Position += 4;
+			}
+			if (original.ReadByte() == 2)               //Target 1
+			{
+				byte shipType = (byte)original.ReadByte();
+				if (shipType != 255) shipType += 1;
+				xwa.WriteByte(shipType);
+				xwa.Position++;
+			}
+			else
+			{
+				original.Position++;
+				xwa.Position += 2;
+			}
+			if (original.ReadByte() == 2)               //Target 2
+			{
+				byte shipType = (byte)original.ReadByte();
+				if (shipType != 255) shipType += 1;
+				xwa.WriteByte(shipType);
+				original.Position += 2;
+				xwa.Position += 4;
+			}
+			else
+			{
+				original.Position += 3;
+				xwa.Position += 5;
+			}
 		}
 	}
 }

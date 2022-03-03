@@ -1,6 +1,6 @@
 /*
  * Convert.exe, Up-converts mission formats between TIE, XvT and XWA
- * Copyright (C) 2005-2020 Michael Gaisser (mjgaisser@gmail.com)
+ * Copyright (C) 2005-2022 Michael Gaisser (mjgaisser@gmail.com)
  * Licensed under the MPL v2.0 or later
  */
 
@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Imperial Department of Military Research")]
 [assembly: AssemblyProduct("IDMR Mission Converter")]
-[assembly: AssemblyCopyright("Copyright © Michael Gaisser 2005-2020")]
+[assembly: AssemblyCopyright("Copyright © Michael Gaisser 2005-2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,7 +31,7 @@ using System.Reflection;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("1.6.0.*")]
+[assembly: AssemblyVersion("1.7.0.*")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
