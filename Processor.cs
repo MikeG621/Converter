@@ -6,10 +6,13 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * VERSION: 1.7
+ * VERSION: 1.7.1
  */
 
 /* CHANGELOG
+ * v1.7.1, 220307
+ * [FIX] XvT to XWA Order 3
+ * v1.7, 220302
  * [FIX] XvT to XWA Order waypoints
  * [FIX] XvT to XWA target Ship Type indexes
  * v1.6, 200906
@@ -711,7 +714,7 @@ namespace Idmr.Converter
 				xvt.Position = xvtPos + 0x146;
 				xvtSubOrderStart = xvt.Position;  //[JB] ShipOFix modifies the offsets and I assume it's bad to add anything so I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				xwaSubOrderStart = xwa.Position;
-				//bw.Write(br.ReadBytes(18));       //Order 3
+				bw.Write(br.ReadBytes(18));       //Order 3
 				//xwa.Position += 2;
 				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
