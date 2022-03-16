@@ -6,10 +6,12 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * VERSION: 1.7.1
+ * VERSION: 1.7.2
  */
 
 /* CHANGELOG
+ * v1.7.2, 220316
+ * [FIX] rest of XvT to XWA Ship Type indexes
  * v1.7.1, 220307
  * [FIX] XvT to XWA Order 3
  * v1.7, 220302
@@ -414,7 +416,7 @@ namespace Idmr.Converter
 				}
 				byte[] buffer = new byte[len];
 				tie.Read(buffer, 0, len);
-				string s = System.Text.Encoding.ASCII.GetString(buffer);
+				string s = Encoding.ASCII.GetString(buffer);
 				int sep = s.IndexOf((char)0xA);
 				if (sep >= 0)
 				{
@@ -445,7 +447,7 @@ namespace Idmr.Converter
 
 				if (qCondition == 0 || qType == 0) continue;
 
-				string s = System.Text.Encoding.ASCII.GetString(buffer);
+				string s = Encoding.ASCII.GetString(buffer);
 				if (buffer[len - 3] == 0xFF)  //If this is the last byte of the string data, remove it.
 					s = s.Remove(s.Length - 1);
 				int sep = s.IndexOf((char)0xA);
@@ -482,8 +484,8 @@ namespace Idmr.Converter
 			if (postMissionFail.Length > maxLength) postMissionFail = postMissionFail.Remove(maxLength);
 
 			byte[] desc;
-			if (!toBoP) desc = System.Text.Encoding.ASCII.GetBytes(preMissionQuestions);
-			else desc = System.Text.Encoding.ASCII.GetBytes(postMissionSuccess);
+			if (!toBoP) desc = Encoding.ASCII.GetBytes(preMissionQuestions);
+			else desc = Encoding.ASCII.GetBytes(postMissionSuccess);
 
 			xvtPos = xvt.Position;
 			xvt.Write(desc, 0, desc.Length);
@@ -556,7 +558,7 @@ namespace Idmr.Converter
 				}
 			}
 			xwa.Position = 100;
-			bw.Write(System.Text.Encoding.ASCII.GetBytes("The Final Frontier"));    //make a nice Region name :P
+			bw.Write(Encoding.ASCII.GetBytes("The Final Frontier"));    //make a nice Region name :P
 			xwa.Position = 0x23AC; xwa.WriteByte(6);                        //starting hangar
 			xwa.Position++;
 			xvt.Position = 0x66; bw.Write(br.ReadByte());       //time limit (minutes)
@@ -623,23 +625,26 @@ namespace Idmr.Converter
 				xwa.Position = xwaPos + 0x88;
 				xvt.Position = xvtPos + 0x6E;
 				bw.Write(br.ReadInt32());                //Arival trigger 1 (cheating and using Int32 since it's 4 bytes)...
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());                //... and 2
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
 				bw.Write(br.ReadByte());                                    //AT 1 AND/OR 2
 				xwa.Position++;
 				bw.Write(br.ReadInt32());                //AT 3
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());                //AT 4
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
 				bw.Write(br.ReadByte());                                    //AT 3 AND/OR 4
 				xwa.Position++;
 				bw.Write(br.ReadInt64());                //AT 1/2 AND/OR 3/4 -> DT (8 bytes)
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());                //DT 2
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
 				bw.Write(br.ReadByte());                                    //DT 1 AND/OR 2
 				xwa.Position += 3;
@@ -651,7 +656,6 @@ namespace Idmr.Converter
 				long xvtSubOrderStart = xvt.Position;  //[JB] I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				long xwaSubOrderStart = xwa.Position;
 				bw.Write(br.ReadBytes(18));       //Order 1
-				//xwa.Position += 2;
 				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
@@ -686,7 +690,6 @@ namespace Idmr.Converter
 				xvtSubOrderStart = xvt.Position;  //[JB] ShipOFix modifies the offsets and I assume it's bad to add anything so I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				xwaSubOrderStart = xwa.Position;
 				bw.Write(br.ReadBytes(18));       //Order 2
-				//xwa.Position += 2;
 				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
@@ -715,7 +718,6 @@ namespace Idmr.Converter
 				xvtSubOrderStart = xvt.Position;  //[JB] ShipOFix modifies the offsets and I assume it's bad to add anything so I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				xwaSubOrderStart = xwa.Position;
 				bw.Write(br.ReadBytes(18));       //Order 3
-				//xwa.Position += 2;
 				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
@@ -744,7 +746,6 @@ namespace Idmr.Converter
 				xvtSubOrderStart = xvt.Position;  //[JB] ShipOFix modifies the offsets and I assume it's bad to add anything so I'm going to let the original code run then rewind to these offsets later to apply my patches.
 				xwaSubOrderStart = xwa.Position;
 				bw.Write(br.ReadBytes(18));       //Order 4
-				//xwa.Position += 2;
 				shipOFix(xvt, xwa);
 				xvt.Position = xvtPos + 0x46E;
 				for (j = 0; j < 8; j++)
@@ -771,9 +772,10 @@ namespace Idmr.Converter
 				xvt.Position = xvtPos + 0x1EA;
 				xwa.Position = xwaPos + 0xA3A;
 				bw.Write(br.ReadInt32());        //jump to Order 4 T1
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());        //jump to Order 4 T2
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
 				bw.Write(br.ReadByte());                            //jump to Order 4 T 1AND/OR 2
 				xwa.Position = xwaPos + 0xB0A;
@@ -860,13 +862,13 @@ namespace Idmr.Converter
 
 			//okay, now write in the default Backdrop
 			xwaPos = xwa.Position;
-			bw.Write(System.Text.Encoding.ASCII.GetBytes("1.0 1.0 1.0"));   //Name
+			bw.Write(Encoding.ASCII.GetBytes("1.0 1.0 1.0"));   //Name
 			xwa.Position = xwaPos + 20;
 			xwa.WriteByte(255); xwa.WriteByte(255); xwa.Position += 3; xwa.WriteByte(255); xwa.WriteByte(255);  //EnableDesignation1, EnableDesignation2, ... GlobalCargoIndex GlobalSpecialCargoIndex 
 			xwa.Position = xwaPos + 40;
-			bw.Write(System.Text.Encoding.ASCII.GetBytes("1.0"));   //Brightness
+			bw.Write(Encoding.ASCII.GetBytes("1.0"));   //Brightness
 			xwa.Position = xwaPos + 60;
-			bw.Write(System.Text.Encoding.ASCII.GetBytes("1.9"));   //Size (match skirmish output)
+			bw.Write(Encoding.ASCII.GetBytes("1.9"));   //Size (match skirmish output)
 			xwa.Position = xwaPos + 105; xwa.WriteByte(2);           //SpecialCargoCraft?
 			xwa.Position++; xwa.WriteByte(183); xwa.WriteByte(1);
 			xwa.Position += 3; xwa.WriteByte(4); //[JB] Changed to IFF Red since it is used less frequently, and is less likely to interfere with IFF triggers.
@@ -885,13 +887,13 @@ namespace Idmr.Converter
 
 			//[JB] Adding a second backdrop, since the game generates two backdrops for skirmish files.  Offers better ambient lighting for the player.
 			xwaPos = xwa.Position;
-			bw.Write(System.Text.Encoding.ASCII.GetBytes("1.0 1.0 1.0"));   //Name
+			bw.Write(Encoding.ASCII.GetBytes("1.0 1.0 1.0"));   //Name
 			xwa.Position = xwaPos + 20;
 			xwa.WriteByte(255); xwa.WriteByte(255); xwa.Position += 3; xwa.WriteByte(255); xwa.WriteByte(255);  //[JB] Modified to update both global cargo values.
 			xwa.Position = xwaPos + 40;
-			bw.Write(System.Text.Encoding.ASCII.GetBytes("1.0"));   //Brightness
+			bw.Write(Encoding.ASCII.GetBytes("1.0"));   //Brightness
 			xwa.Position = xwaPos + 60;
-			bw.Write(System.Text.Encoding.ASCII.GetBytes("1.0"));   //Size
+			bw.Write(Encoding.ASCII.GetBytes("1.0"));   //Size
 			xwa.Position = xwaPos + 105; xwa.WriteByte(2);
 			xwa.Position++; xwa.WriteByte(183); xwa.WriteByte(1);
 			xwa.Position += 3; xwa.WriteByte(4);
@@ -944,17 +946,19 @@ namespace Idmr.Converter
 				}
 				xwa.Position = xwaPos + 82;
 				bw.Write(br.ReadBytes(14));     //Sent to.. -> T1
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());           //T2
+				shipFix(xvt, xwa);
 				xvt.Position += 2;
-				xwa.Position += 4;
+				xwa.Position += 2;
 				bw.Write(br.ReadByte());                                //T1 AND/OR T2
 				xwa.Position++;
 				bw.Write(br.ReadInt32());           //T3
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());           //T4
+				shipFix(xvt, xwa);
 				xvt.Position += 2;
-				xwa.Position += 4;
+				xwa.Position += 2;
 				bw.Write(br.ReadByte());                                //T3 AND/OR T4
 				xwa.Position = xwaPos + 141;
 				xvt.Position += 17;
@@ -983,52 +987,58 @@ namespace Idmr.Converter
 				xwa.Position++;
 				xvt.Position += 2;
 				bw.Write(br.ReadInt32());       //Prim T1
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());       //PT2
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
-				bw.Write(br.ReadByte());                            //PT 1 AND/OR 2
+				bw.Write(br.ReadByte());		//PT 1 AND/OR 2
 				xwa.Position++;
 				bw.Write(br.ReadInt32());       //PT 3
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());       //PT 4
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
-				bw.Write(br.ReadByte());                            //PT 3 AND/OR 4
+				bw.Write(br.ReadByte());		//PT 3 AND/OR 4
 				xvt.Position += 17;
 				xwa.Position += 18;
 				bw.Write(br.ReadBytes(3));      //PT (1/2) AND/OR (3/4) -> Points
 				xwa.Position += 70;
 				bw.Write(br.ReadInt32());       //Prev T1
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());       //PT2
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
-				bw.Write(br.ReadByte());                            //PT 1 AND/OR 2
+				bw.Write(br.ReadByte());		//PT 1 AND/OR 2
 				xwa.Position++;
 				bw.Write(br.ReadInt32());       //PT 3
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());       //PT 4
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
-				bw.Write(br.ReadByte());                            //PT 3 AND/OR 4
+				bw.Write(br.ReadByte());		//PT 3 AND/OR 4
 				xvt.Position += 17;
 				xwa.Position += 18;
 				bw.Write(br.ReadBytes(3));      //PT (1/2) AND/OR (3/4) -> Points
 				xwa.Position += 70;
 				bw.Write(br.ReadInt32());       //Sec T1
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());       //ST2
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
-				bw.Write(br.ReadByte());                            //ST 1 AND/OR 2
+				bw.Write(br.ReadByte());		//ST 1 AND/OR 2
 				xwa.Position++;
 				bw.Write(br.ReadInt32());       //ST 3
-				xwa.Position += 2;
+				shipFix(xvt, xwa);
 				bw.Write(br.ReadInt32());       //ST 4
-				xwa.Position += 4;
+				shipFix(xvt, xwa);
+				xwa.Position += 2;
 				xvt.Position += 2;
-				bw.Write(br.ReadByte());                            //ST 3 AND/OR 4
+				bw.Write(br.ReadByte());		//ST 3 AND/OR 4
 				xvt.Position += 17;
 				xwa.Position += 18;
 				bw.Write(br.ReadBytes(3));      //ST (1/2) AND/OR (3/4) -> Points
@@ -1385,6 +1395,21 @@ namespace Idmr.Converter
 			xwa.Position = curXWA;
 		}
 
+		static void shipFix(FileStream original, FileStream xwa)
+		{
+			original.Position -= 3;
+			if (original.ReadByte() == 2)
+			{
+				xwa.Position -= 2;
+				byte shipType = (byte)original.ReadByte();
+				if (shipType != 255) shipType++;
+				xwa.WriteByte(shipType);
+				xwa.Position++;
+				original.Position++;
+			}
+			else { original.Position += 2; }
+			xwa.Position += 2;
+		}
 		static void shipOFix(FileStream original, FileStream xwa)  //seperate function for Orders
 		{
 			original.Position -= 12;
