@@ -6,10 +6,13 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * VERSION: 1.7.2
+ * VERSION: 1.7.3
  */
 
 /* CHANGELOG
+ * v1.7.3, 220827
+ * [FIX] XvT briefings are 21 FPS, not 20
+ * [FIX] XvT to XWA zoom unified on Y values instead of different X/Y
  * v1.7.2, 220316
  * [FIX] rest of XvT to XWA Ship Type indexes
  * v1.7.1, 220307
@@ -356,7 +359,7 @@ namespace Idmr.Converter
 			bw.Write(br.ReadBytes(0x32A)); //Briefing
 			xvt.WriteByte(1); xvt.Position += 9;
 			xvt.Position = xvtPos;
-			j = (short)(brXvT.ReadInt16() * 0x14 / 0xC);        // adjust overall briefing length
+			j = (short)(brXvT.ReadInt16() * 0x15 / 0xC);        // adjust overall briefing length
 			xvt.Position -= 2;
 			bw.Write(j);
 			xvt.Position += 8;
@@ -364,7 +367,7 @@ namespace Idmr.Converter
 			{
 				j = brXvT.ReadInt16();
 				if (j == 0x270F) break;     // stop check at t=9999, end briefing
-				j = (short)(j * 0x14 / 0xC);
+				j = (short)(j * 0x15 / 0xC);
 				xvt.Position -= 2;
 				bw.Write(j);
 				j = brXvT.ReadInt16();       // now get the event type
@@ -1059,7 +1062,7 @@ namespace Idmr.Converter
 			xwa.Position += 20 * briefShipCount[0] + 2;
 			bw.Write(br.ReadBytes(0x32A));  //briefing content
 			xwa.Position = xwaPos;
-			j = (short)(brXWA.ReadInt16() * 0x19 / 0x14);       // adjust overall briefing length
+			j = (short)(brXWA.ReadInt16() * 0x19 / 0x15);       // adjust overall briefing length
 			xwa.Position -= 2;
 			bw.Write(j);
 			xwa.Position += 8;
@@ -1067,7 +1070,7 @@ namespace Idmr.Converter
 			{
 				j = brXWA.ReadInt16();
 				if (j == 0x270F) break;     // stop check at t=9999, end briefing
-				j = (short)(j * 0x19 / 0x14);
+				j = (short)(j * 0x19 / 0x15);
 				xwa.Position -= 2;
 				bw.Write(j);
 				j = brXWA.ReadInt16();      // now get the event type
@@ -1080,7 +1083,7 @@ namespace Idmr.Converter
 				}
 				else if (j == 7)        // Zoom map command
 				{
-					j = (short)(brXWA.ReadInt16() * 124 / 58);  // X
+					j = (short)(brXWA.ReadInt16() * 124 / 88);  // X
 					xwa.Position -= 2;
 					bw.Write(j);
 					j = (short)(brXWA.ReadInt16() * 124 / 88);  // Y
@@ -1128,7 +1131,7 @@ namespace Idmr.Converter
 				xwa.Position += 20 * briefShipCount[1] + 2;
 				bw.Write(br.ReadBytes(0x32A));  //briefing content
 				xwa.Position = xwaPos;
-				j = (short)(brXWA.ReadInt16() * 0x19 / 0x14);       // adjust overall briefing length
+				j = (short)(brXWA.ReadInt16() * 0x19 / 0x15);       // adjust overall briefing length
 				xwa.Position -= 2;
 				bw.Write(j);
 				xwa.Position += 8;
@@ -1136,7 +1139,7 @@ namespace Idmr.Converter
 				{
 					j = brXWA.ReadInt16();
 					if (j == 0x270F) break;     // stop check at t=9999, end briefing
-					j = (short)(j * 0x19 / 0x14);
+					j = (short)(j * 0x19 / 0x15);
 					xwa.Position -= 2;
 					bw.Write(j);
 					j = brXWA.ReadInt16();      // now get the event type
@@ -1149,7 +1152,7 @@ namespace Idmr.Converter
 					}
 					else if (j == 7)        // Zoom map command
 					{
-						j = (short)(brXWA.ReadInt16() * 124 / 58);  // X
+						j = (short)(brXWA.ReadInt16() * 124 / 88);  // X
 						xwa.Position -= 2;
 						bw.Write(j);
 						j = (short)(brXWA.ReadInt16() * 124 / 88);  // Y
@@ -1332,8 +1335,7 @@ namespace Idmr.Converter
 				//Get the role first so that if the team is set to all, both teams can be assigned the same role.
 				char team = sub[0];
 				sub = sub.Substring(1);
-				byte role;
-				roleMap.TryGetValue(sub, out role);
+				roleMap.TryGetValue(sub, out byte role);
 				xwa[2 + i] = role;
 
 				switch (team)
